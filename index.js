@@ -1,17 +1,25 @@
+//initialize variable
+
 let searchBtn = document.querySelector('#search-btn');
 let menuDetails = document.querySelector('#html-div');
 let errorMassage = document.querySelector('#error-massege');
 let foodDetailsDiv = document.getElementById('pop-up');
+
+// capture search bar value and call api after click search button.
 searchBtn.addEventListener('click', (e) => {
     e.preventDefault();
     errorMassage.style.display = 'none';
     menuDetails.innerHTML = '';
     let searchBarValue = document.querySelector('#search-bar').value;
+    showSpinner(true);
+
     if (searchBarValue.length == 1) {
+        // api use from mealDB.com. This api load value using first latter of the searching meal
         fetch(`https://www.themealdb.com/api/json/v1/1/search.php?f=${searchBarValue}`)
             .then((res) => res.json())
             .then((data) => {
                 if (data.meals == null) {
+                    showSpinner(false);
                     menuDetails.style.display = 'none';
                     foodDetailsDiv.innerHTML = '';
                     errorMassage.style.display = 'block';
@@ -25,13 +33,16 @@ searchBtn.addEventListener('click', (e) => {
             })
     }
     else if (searchBarValue.length == 0) {
-        alert("Hello! I am an alert box!!");
+        alert("Please give search value");
     }
     else {
+        // api use from mealDB.com This api load value using full meal name.
         fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${searchBarValue}`)
             .then((response) => response.json())
             .then((result) => {
+                // if do not load data from api then this block is working
                 if (result.meals == null) {
+                    showSpinner(false);
                     menuDetails.innerHTML = '';
                     errorMassage.style.display = 'block';
                 }
@@ -44,12 +55,14 @@ searchBtn.addEventListener('click', (e) => {
     }
 })
 
+
+// This function take data from api then show in user interface.
 const showMealsByFirstWord = (foods) => {
     foods.map((food) => {
         console.log(food);
 
-        // let htmlDiv = document.getElementById('html-div');
-
+        
+        // create div element and set attribute
         let div = document.createElement('div');
         div.className = 'card';
         div.style.margin = '10px'
@@ -61,32 +74,11 @@ const showMealsByFirstWord = (foods) => {
         
 
 
-
+        /// create image element and set attribute.
         let img = document.createElement('img');
         img.className = 'card-img-top';
         img.src = food.strMealThumb;
 
-//         htmlDiv.innerHTML = `  <div class="card" onclick="displayDetails('${food.idMeal}')" style="width:18rem; margin:10px;" ata-toggle="modal" data-target="#exampleModal">
-//       <img class="card-img-top" src=${food.strMealThumb} alt="" />
-//       <div className="card-body">
-//           <h5 className="card-title">${food.strMeal}</h5>
-//       </div>
-//   </div>`
-//   console.log(htmlDiv);
-
-
-
-
-
-
-
-
-
-        // let foodInfo = `
-        // <div class="card-body">
-        // <h5 class="card-title">${food.strMeal}</h5>
-        // </div>
-        // `;
 
         let cardBodyDiv = document.createElement('div');
         cardBodyDiv.className = 'card-body';
@@ -95,35 +87,33 @@ const showMealsByFirstWord = (foods) => {
         h5.innerText = food.strMeal;
 
 
-
+        // after creating element set inside the html
         cardBodyDiv.appendChild(h5);
-
         div.appendChild(img);
         div.appendChild(cardBodyDiv);
-
-        console.log(div);
-
         menuDetails.appendChild(div);
-
+        showSpinner(false);
 
 
     });
 }
 
-
+// This function use for call api. which api work by using meal id.
 const displayDetails = (name) => {
 
-    console.log('name:'+name)
+    // api use from mealDB.com
     const url = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${name}`;
     fetch(url)
         .then(res => res.json())
         .then(data => {
 
             renderFoodInfo(data.meals[0]);
-            // console.log(data.meals[0]);
+            
         });
 }
 
+
+// show single meal details 
 const renderFoodInfo = food => {
     
   
@@ -145,9 +135,21 @@ const renderFoodInfo = food => {
 
 };
 
+// This function call after click in dismiss button
 const dismiss = ()=>{
    console.log("dismiss");
    foodDetailsDiv.innerHTML = '';
    menuDetails.style.display = 'flex';
 }
 
+const showSpinner = (show)=>{
+    const spinner = document.getElementById('loading-spinner');
+    if(show){
+        spinner.classList.remove('d-none');
+    }
+    else{
+        spinner.classList.add('d-none');
+    }
+}
+
+// Thank you for checking my code.
